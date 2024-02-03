@@ -4,7 +4,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { Profile } from '../profile/profile.entity';
 
 @Entity()
 export class User {
@@ -42,4 +44,7 @@ export class User {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
+  profile: Profile;
 }
