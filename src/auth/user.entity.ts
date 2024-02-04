@@ -39,6 +39,23 @@ export class User {
   })
   isAdmin: boolean;
 
+  @Column({
+    default: false,
+  })
+  subscribed: boolean;
+
+  @Column({
+    type: 'decimal',
+    scale: 1,
+    default: 0,
+  })
+  wallet: number;
+
+  @Column({
+    default: false,
+  })
+  blocked: boolean;
+
   @CreateDateColumn()
   createdDate: Date;
 

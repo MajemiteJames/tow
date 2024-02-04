@@ -51,4 +51,23 @@ export class AuthService {
       throw new UnauthorizedException('Please check your login credentials');
     }
   }
+
+  async createAdmin(
+    authCredentialsDto: AuthCredentialsDto,
+  ): Promise<{ accessToken: string }> {
+    const existingUser = await this.usersRepository.findOneByEmail(
+      authCredentialsDto.email,
+    );
+    if (existingUser) {
+      throw new ConflictException('Username already exists');
+    }
+    this.usersRepository.createAdmin(authCredentialsDto);
+    delete authCredentialsDto.password;
+    const payload: JwtPayload = {
+      user: authCredentialsDto,
+      email: authCredentialsDto.email,
+    };
+    const accessToken: string = await this.jwtService.sign(payload);
+    return { accessToken };
+  }
 }

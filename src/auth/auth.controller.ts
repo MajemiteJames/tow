@@ -22,4 +22,11 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     return this.authService.signIn(authCredentialsDto);
   }
+
+  @Post('/create_admin')
+  @ApiBody({ type: AuthCredentialsDto })
+  @ApiResponse({ status: 201, description: 'User created successfully' })
+  createAdmin(@Body() authCredentialsDto: AuthCredentialsDto): Promise<any> {
+    return this.authService.createAdmin(authCredentialsDto);
+  }
 }
