@@ -56,12 +56,18 @@ export class AuthService {
 
   async createAdmin(
     authCredentialsDto: AuthCredentialsDto,
+    user: User,
   ): Promise<{ accessToken: string }> {
     const existingUser = await this.usersRepository.findOneByEmail(
       authCredentialsDto.email,
     );
     if (existingUser) {
       throw new ConflictException('Username already exists');
+    }
+    if (user.isAdmin == false) {
+      throw new ConflictException(
+        'You are not authorized to perform this function',
+      );
     }
     this.usersRepository.createAdmin(authCredentialsDto);
     delete authCredentialsDto.password;
@@ -73,10 +79,19 @@ export class AuthService {
     return { accessToken };
   }
 
-  async blockUser(user: User): Promise<any> {
-    user.subscribed = true;
-    await this.usersRepository.save(user);
-    return user;
+  async blockUser(user: User, userId: string): Promise<any> {
+    if (user.isAdmin == false) {
+      throw new ConflictException(
+        'You are not authorized to perform this function',
+      );
+    }
+    const gotten_user = await this.usersRepository.findOne(userId);
+    if (!gotten_user) {
+      throw new ConflictException('User not found');
+    }
+    gotten_user.subscribed = true;
+    await this.usersRepository.save(gotten_user);
+    return gotten_user;
   }
 
   async subscribe(user: User): Promise<any> {
