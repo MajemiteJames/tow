@@ -32,7 +32,7 @@ export class WallyController {
         wallyDto,
       )}`,
     );
-    return this.wallyService.createProfile(wallyDto, user);
+    return this.wallyService.createWally(wallyDto, user);
   }
 
   @Get(':id')
@@ -41,7 +41,11 @@ export class WallyController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() wally: Wally): Promise<Wally> {
-    return this.wallyService.update(id, wally);
+  update(
+    @Param('id') id: string,
+    @Body() wally: Wally,
+    @GetUser() user: User,
+  ): Promise<Wally> {
+    return this.wallyService.update(id, wally, user);
   }
 }

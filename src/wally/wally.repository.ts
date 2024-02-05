@@ -5,7 +5,7 @@ import { Wally } from './wally.entity';
 
 @EntityRepository(Wally)
 export class WallyRepository extends Repository<Wally> {
-  async createWally(wallyDto: WallyDto, user: User): Promise<Wally> {
+  async createWally(wallyDto: WallyDto): Promise<Wally> {
     const { name, value, min } = wallyDto;
 
     const new_wally = this.create({
