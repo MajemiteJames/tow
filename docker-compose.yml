@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=jelani.db.elephantsql.com
+      - DB_PORT=5432
+      - DB_USERNAME=lmujujnu
+      - DB_PASSWORD=PVsjE05Lye6Ro-BzlAbd1wZVCwL6M-_O
+      - DB_NAME=lmujujnu
+  db:
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=lmujujnu
+      - POSTGRES_PASSWORD=PVsjE05Lye6Ro-BzlAbd1wZVCwL6M-_O
+      - POSTGRES_DB=lmujujnu
