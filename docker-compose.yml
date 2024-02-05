@@ -7,16 +7,16 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=jelani.db.elephantsql.com
+      - DB_HOST=DB_HOST
       - DB_PORT=5432
-      - DB_USERNAME=lmujujnu
-      - DB_PASSWORD=PVsjE05Lye6Ro-BzlAbd1wZVCwL6M-_O
-      - DB_NAME=lmujujnu
+      - DB_USERNAME=DB_USERNAME
+      - DB_PASSWORD=DB_PASSWORD
+      - DB_NAME=DB_NAME
   db:
     image: postgres
     ports:
       - '5432:5432'
     environment:
-      - POSTGRES_USER=lmujujnu
-      - POSTGRES_PASSWORD=PVsjE05Lye6Ro-BzlAbd1wZVCwL6M-_O
-      - POSTGRES_DB=lmujujnu
+      - POSTGRES_USER=DB_NAME
+      - POSTGRES_PASSWORD=DB_PASSWORD
+      - POSTGRES_DB=DB_NAME
