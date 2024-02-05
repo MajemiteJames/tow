@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProfileModule } from './profile/profile.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { WallyModule } from './wally/wally.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     AuthModule,
     ProfileModule,
+    WallyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
