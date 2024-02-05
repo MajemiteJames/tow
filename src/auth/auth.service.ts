@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import { User } from './user.entity';
+import { LessThan } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -76,5 +77,22 @@ export class AuthService {
     user.blocked = true;
     await this.usersRepository.save(user);
     return user;
+  }
+
+  async lockUnsubscriedUser() {
+    const tenWeeksAgo = new Date();
+    tenWeeksAgo.setDate(tenWeeksAgo.getDate() - 10 * 7);
+
+    const usersToLock = await this.usersRepository.find({
+      where: {
+        createdDate: LessThan(tenWeeksAgo),
+        blocked: false, // Consider only those users who are not already blocked
+      },
+    });
+
+    for (const user of usersToLock) {
+      user.blocked = true;
+      await this.usersRepository.save(user);
+    }
   }
 }

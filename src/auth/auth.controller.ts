@@ -41,4 +41,10 @@ export class AuthController {
   updateUserOnboardStatus(@GetUser() user: User): Promise<any> {
     return this.authService.blockUser(user);
   }
+
+  @Post('lock-users')
+  async lockUsers() {
+    await this.authService.lockUnsubscriedUser();
+    return { message: 'Users locked after ten weeks successfully' };
+  }
 }
