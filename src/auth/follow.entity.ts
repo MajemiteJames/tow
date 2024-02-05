@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { User } from '../auth/user.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Follow {

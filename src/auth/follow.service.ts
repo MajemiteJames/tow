@@ -1,20 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../auth/user.entity';
+import { User } from './user.entity';
 import { Follow } from './follow.entity';
 @Injectable()
 export class FollowService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly UsersRepository: Repository<User>,
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
   ) {}
 
   async followUser(userId: string, followId: string): Promise<void> {
-    const follower = await this.userRepository.findOne(userId);
-    const following = await this.userRepository.findOne(followId);
+    const follower = await this.UsersRepository.findOne(userId);
+    const following = await this.UsersRepository.findOne(followId);
 
     if (!follower || !following) {
       throw new NotFoundException('User not found');

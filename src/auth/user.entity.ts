@@ -8,7 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
-import { Follow } from 'src/follow/follow.entity';
+import { Follow } from './follow.entity';
 
 @Entity()
 export class User {

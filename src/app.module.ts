@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { ProfileModule } from './profile/profile.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WallyModule } from './wally/wally.module';
-import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { FollowModule } from './follow/follow.module';
     AuthModule,
     ProfileModule,
     WallyModule,
-    FollowModule,
   ],
   controllers: [AppController],
   providers: [AppService],

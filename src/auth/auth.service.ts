@@ -74,6 +74,12 @@ export class AuthService {
   }
 
   async blockUser(user: User): Promise<any> {
+    user.subscribed = true;
+    await this.usersRepository.save(user);
+    return user;
+  }
+
+  async subscribe(user: User): Promise<any> {
     user.blocked = true;
     await this.usersRepository.save(user);
     return user;
