@@ -12,15 +12,11 @@ import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from './user.entity';
-import { FollowService } from './follow.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private readonly followService: FollowService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('/signup')
   @ApiBody({ type: AuthCredentialsDto })
@@ -64,13 +60,5 @@ export class AuthController {
   async lockUsers() {
     await this.authService.lockUnsubscriedUser();
     return { message: 'Users locked after ten weeks successfully' };
-  }
-
-  @Post(':userId/follow/:followId')
-  async followUser(
-    @Param('userId') userId: string,
-    @Param('followId') followId: string,
-  ) {
-    return this.followService.followUser(userId, followId);
   }
 }

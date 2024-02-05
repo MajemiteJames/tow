@@ -8,8 +8,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
-import { Follow } from './follow.entity';
-
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -66,10 +64,4 @@ export class User {
 
   @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
   profile: Profile;
-
-  @OneToMany(() => Follow, (follow) => follow.follower)
-  following: Follow[];
-
-  @OneToMany(() => Follow, (follow) => follow.following)
-  followers: Follow[];
 }
