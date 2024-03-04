@@ -2,15 +2,18 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EmailCredentialsDto } from './dto/auth-emails.dto';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
+import { generateOTP } from './otp.utils';
+import { MailerService } from '@nestjs-modules/mailer';
 import { User } from './user.entity';
-import { LessThan } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -18,23 +21,31 @@ export class AuthService {
     @InjectRepository(UsersRepository)
     private usersRepository: UsersRepository,
     private jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
 
-  async signUp(
-    authCredentialsDto: AuthCredentialsDto,
+  async signUpEmail(
+    emailCredentialsDto: EmailCredentialsDto,
   ): Promise<{ accessToken: string }> {
     const existingUser = await this.usersRepository.findOneByEmail(
-      authCredentialsDto.email,
+      emailCredentialsDto.email,
     );
     if (existingUser) {
-      throw new ConflictException('Username already exists');
+      throw new ConflictException('Email already exists');
     }
-    this.usersRepository.createUser(authCredentialsDto);
-    delete authCredentialsDto.password;
+    emailCredentialsDto.otp = generateOTP();
+    // Send OTP to the user's email
+    await this.sendOtpEmail(emailCredentialsDto.email, emailCredentialsDto.otp);
+    this.usersRepository.createUser({
+      email: emailCredentialsDto.email,
+      otp: emailCredentialsDto.otp,
+      otp_expiration: new Date(Date.now() + 10 * 60 * 10000),
+    });
     const payload: JwtPayload = {
-      user: authCredentialsDto,
-      email: authCredentialsDto.email,
+      user: emailCredentialsDto,
+      email: emailCredentialsDto.email,
     };
+
     const accessToken: string = await this.jwtService.sign(payload);
     return { accessToken };
   }
@@ -54,66 +65,32 @@ export class AuthService {
     }
   }
 
-  async createAdmin(
-    authCredentialsDto: AuthCredentialsDto,
-    user: User,
-  ): Promise<{ accessToken: string }> {
-    const existingUser = await this.usersRepository.findOneByEmail(
-      authCredentialsDto.email,
-    );
-    if (existingUser) {
-      throw new ConflictException('Username already exists');
+  async verifyOtp(email: string, otp: string): Promise<void> {
+    const user = await this.usersRepository.findOneByEmail(email);
+
+    if (!user || user.otp !== otp) {
+      throw new NotFoundException('Invalid OTP');
     }
-    if (user.isAdmin == false) {
-      throw new ConflictException(
-        'You are not authorized to perform this function',
-      );
-    }
-    this.usersRepository.createAdmin(authCredentialsDto);
-    delete authCredentialsDto.password;
-    const payload: JwtPayload = {
-      user: authCredentialsDto,
-      email: authCredentialsDto.email,
-    };
-    const accessToken: string = await this.jwtService.sign(payload);
-    return { accessToken };
+
+    const otp_expired = new Date() > new Date(user.otp_expiration);
+    if (otp_expired) throw new NotFoundException('OTP is expired');
+
+    // Clear OTP after successful verification
+    user.otp = null;
+    await this.usersRepository.updateUser(user);
   }
 
-  async blockUser(user: User, userId: string): Promise<any> {
-    if (user.isAdmin == false) {
-      throw new ConflictException(
-        'You are not authorized to perform this function',
-      );
-    }
-    const gotten_user = await this.usersRepository.findOne(userId);
-    if (!gotten_user) {
-      throw new ConflictException('User not found');
-    }
-    gotten_user.subscribed = true;
-    await this.usersRepository.save(gotten_user);
-    return gotten_user;
-  }
-
-  async subscribe(user: User): Promise<any> {
-    user.blocked = true;
-    await this.usersRepository.save(user);
-    return user;
-  }
-
-  async lockUnsubscriedUser() {
-    const tenWeeksAgo = new Date();
-    tenWeeksAgo.setDate(tenWeeksAgo.getDate() - 10 * 7);
-
-    const usersToLock = await this.usersRepository.find({
-      where: {
-        createdDate: LessThan(tenWeeksAgo),
-        blocked: false, // Consider only those users who are not already blocked
-      },
+  private async sendOtpEmail(email: string, otp: string): Promise<void> {
+    await this.mailerService.sendMail({
+      to: email,
+      from: 'noreply@edswot.com',
+      subject: 'OTP Verification',
+      text: `${otp}`,
+      html: `Your OTP for registration is: ${otp}`,
     });
+  }
 
-    for (const user of usersToLock) {
-      user.blocked = true;
-      await this.usersRepository.save(user);
-    }
+  async deleteOneById(id: string): Promise<void> {
+    await this.usersRepository.delete(id);
   }
 }

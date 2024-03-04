@@ -5,9 +5,8 @@ import { configValidationSchema } from './config.schema';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProfileModule } from './profile/profile.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 import { ScheduleModule } from '@nestjs/schedule';
-import { WallyModule } from './wally/wally.module';
 
 @Module({
   imports: [
@@ -38,9 +37,21 @@ import { WallyModule } from './wally/wally.module';
         };
       },
     }),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.MAIL_HOST,
+        port: Number(process.env.MAIL_PORT),
+        secure: true,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      },
+      defaults: {
+        from: process.env.MAIL_FROM,
+      },
+    }),
     AuthModule,
-    ProfileModule,
-    WallyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

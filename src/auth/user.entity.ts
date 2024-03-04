@@ -4,10 +4,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  OneToOne,
-  OneToMany,
 } from 'typeorm';
-import { Profile } from '../profile/profile.entity';
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -16,52 +14,21 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  firstname: string;
-
-  @Column()
-  lastname: string;
-
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
-  @Column()
-  date_of_birth: Date;
+  @Column({ nullable: true })
+  otp: string;
 
-  @Column()
-  country: string;
+  @Column({ nullable: true })
+  otp_expiration: Date;
 
-  @Column()
-  zip_code: number;
-
-  @Column({
-    default: false,
-  })
-  isAdmin: boolean;
-
-  @Column({
-    default: false,
-  })
-  subscribed: boolean;
-
-  @Column({
-    type: 'decimal',
-    scale: 1,
-    default: 0,
-  })
-  wallet: number;
-
-  @Column({
-    default: false,
-  })
-  blocked: boolean;
+  @Column({ default: false })
+  is_verified: string;
 
   @CreateDateColumn()
   createdDate: Date;
 
   @UpdateDateColumn()
   updatedDate: Date;
-
-  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
-  profile: Profile;
 }
